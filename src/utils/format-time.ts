@@ -8,6 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+dayjs.locale('ru');
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ export function fDateTime(date: DatePickerFormat, format?: string) {
 
   const isValid = dayjs(date).isValid();
 
-  return isValid ? dayjs(date).format(format ?? formatStr.dateTime) : 'Invalid time value';
+  return isValid ? dayjs(date).format(format ?? formatStr.dateTime) : 'Неверное значение времени';
 }
 
 // ----------------------------------------------------------------------
@@ -59,7 +60,7 @@ export function fDate(date: DatePickerFormat, format?: string) {
 
   const isValid = dayjs(date).isValid();
 
-  return isValid ? dayjs(date).format(format ?? formatStr.date) : 'Invalid time value';
+  return isValid ? dayjs(date).format(format ?? formatStr.date) : 'Неверное значение времени';
 }
 
 // ----------------------------------------------------------------------
@@ -73,7 +74,7 @@ export function fTime(date: DatePickerFormat, format?: string) {
 
   const isValid = dayjs(date).isValid();
 
-  return isValid ? dayjs(date).format(format ?? formatStr.time) : 'Invalid time value';
+  return isValid ? dayjs(date).format(format ?? formatStr.time) : 'Неверное значение времени';
 }
 
 // ----------------------------------------------------------------------
@@ -87,7 +88,7 @@ export function fTimestamp(date: DatePickerFormat) {
 
   const isValid = dayjs(date).isValid();
 
-  return isValid ? dayjs(date).valueOf() : 'Invalid time value';
+  return isValid ? dayjs(date).valueOf() : 'Неверное значение времени';
 }
 
 // ----------------------------------------------------------------------
@@ -101,7 +102,7 @@ export function fToNow(date: DatePickerFormat) {
 
   const isValid = dayjs(date).isValid();
 
-  return isValid ? dayjs(date).toNow(true) : 'Invalid time value';
+  return isValid ? dayjs(date).toNow(true) : 'Неверное значение времени';
 }
 
 // ----------------------------------------------------------------------
@@ -152,7 +153,7 @@ export function fIsSame(
   const isValid = dayjs(startDate).isValid() && dayjs(endDate).isValid();
 
   if (!isValid) {
-    return 'Invalid time value';
+    return 'Неверное значение времени';
   }
 
   return dayjs(startDate).isSame(endDate, units ?? 'year');
@@ -176,7 +177,7 @@ export function fDateRangeShortLabel(
   const isAfter = fIsAfter(startDate, endDate);
 
   if (!isValid || isAfter) {
-    return 'Invalid time value';
+    return 'Неверное значение времени';
   }
 
   let label = `${fDate(startDate)} - ${fDate(endDate)}`;
