@@ -1,166 +1,43 @@
 import { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
 
 import {
   Box,
   Table,
+  Paper,
+  Tooltip,
+  TableRow,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
-  TableRow,
-  Paper,
   Typography,
+  TableContainer,
   CircularProgress,
-  Chip,
-  Tooltip,
-  Card,
 } from '@mui/material';
 
-import { useTranslate } from 'src/locales';
-import { useGetLotsTable } from '../api/lots/get';
+import { useGetTables } from '../api/table/get';
 
-import type { ITimeSlot, ILoadingDock, ILotSlot } from '../types/lots';
-
-// ----------------------------------------------------------------------
-
-// Mock data for development since backend is not ready
-const mockData = {
-  time_slots: [
-    { id: '1', start_time: '08:00', end_time: '09:00' },
-    { id: '2', start_time: '09:00', end_time: '10:00' },
-    { id: '3', start_time: '10:00', end_time: '11:00' },
-    { id: '4', start_time: '11:00', end_time: '12:00' },
-    { id: '5', start_time: '12:00', end_time: '13:00' },
-    { id: '6', start_time: '13:00', end_time: '14:00' },
-    { id: '7', start_time: '14:00', end_time: '15:00' },
-    { id: '8', start_time: '15:00', end_time: '16:00' },
-    { id: '9', start_time: '16:00', end_time: '17:00' },
-    { id: '10', start_time: '17:00', end_time: '18:00' },
-  ],
-  loading_docks: [
-    {
-      id: '1',
-      section: "1-bo'lim",
-      gate: '1-qator',
-      display_name: "1-bo'lim, 1-qator",
-      is_active: true,
-    },
-    {
-      id: '2',
-      section: "1-bo'lim",
-      gate: '2-qator',
-      display_name: "1-bo'lim, 2-qator",
-      is_active: true,
-    },
-    {
-      id: '3',
-      section: "1-bo'lim",
-      gate: '3-qator',
-      display_name: "1-bo'lim, 3-qator",
-      is_active: true,
-    },
-    {
-      id: '4',
-      section: "2-bo'lim",
-      gate: '1-qator',
-      display_name: "2-bo'lim, 1-qator",
-      is_active: true,
-    },
-    {
-      id: '5',
-      section: "2-bo'lim",
-      gate: '2-qator',
-      display_name: "2-bo'lim, 2-qator",
-      is_active: true,
-    },
-    {
-      id: '6',
-      section: "2-bo'lim",
-      gate: '3-qator',
-      display_name: "2-bo'lim, 3-qator",
-      is_active: true,
-    },
-    {
-      id: '7',
-      section: "2-bo'lim",
-      gate: '4-qator',
-      display_name: "2-bo'lim, 4-qator",
-      is_active: true,
-    },
-    {
-      id: '8',
-      section: "2-bo'lim",
-      gate: '5-qator',
-      display_name: "2-bo'lim, 5-qator",
-      is_active: true,
-    },
-    {
-      id: '9',
-      section: "3-bo'lim",
-      gate: '1-qator',
-      display_name: "3-bo'lim, 1-qator",
-      is_active: true,
-    },
-    {
-      id: '10',
-      section: "3-bo'lim",
-      gate: '2-qator',
-      display_name: "3-bo'lim, 2-qator",
-      is_active: true,
-    },
-  ],
-  lot_slots: [
-    // Some sample occupied slots
-    {
-      id: '1',
-      dock_id: '2',
-      time_slot_id: '3',
-      is_occupied: true,
-      load_id: 123,
-      arendator_name: 'ООО Компания А',
-      status: 'occupied' as const,
-    },
-    {
-      id: '2',
-      dock_id: '4',
-      time_slot_id: '5',
-      is_occupied: true,
-      load_id: 124,
-      arendator_name: 'ИП Иванов',
-      status: 'occupied' as const,
-    },
-    { id: '3', dock_id: '1', time_slot_id: '7', is_occupied: false, status: 'reserved' as const },
-    {
-      id: '4',
-      dock_id: '6',
-      time_slot_id: '2',
-      is_occupied: false,
-      status: 'maintenance' as const,
-    },
-    // All other slots are available by default
-  ],
-};
+import type { ILotSlot } from '../api/table/get';
 
 // ----------------------------------------------------------------------
 
-export function LotsTable() {
-  const { t } = useTranslate();
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+interface DroppableSlotProps {
+  dockId: string;
+  timeSlotId: string;
+  slot: ILotSlot | null;
+  isSelected: boolean;
+  onSlotClick: () => void;
+}
 
-  // For now, using mock data. Uncomment below when backend is ready:
-  // const { data, isLoading, error } = useGetLotsTable();
-
-  // Mock data usage
-  const data = mockData;
-  const isLoading = false;
-  const error = null;
-
-  const getSlotStatus = (dockId: string, timeSlotId: string): ILotSlot | null => {
-    return (
-      data?.lot_slots.find((slot) => slot.dock_id === dockId && slot.time_slot_id === timeSlotId) ||
-      null
-    );
-  };
+function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: DroppableSlotProps) {
+  const { isOver, setNodeRef } = useDroppable({
+    id: `slot-${dockId}-${timeSlotId}`,
+    data: {
+      dockId,
+      timeSlotId,
+      existingSlotId: slot?.id,
+    },
+  });
 
   const getSlotColor = (status: string | undefined) => {
     switch (status) {
@@ -191,6 +68,81 @@ export function LotsTable() {
     }
   };
 
+  const slotStyle = getSlotColor(slot?.status);
+
+  return (
+    <TableCell
+      ref={setNodeRef}
+      align="center"
+      sx={{
+        cursor: 'pointer',
+        position: 'relative',
+        backgroundColor: isOver ? 'action.hover' : 'transparent',
+      }}
+      onClick={onSlotClick}
+    >
+      <Tooltip
+        title={
+          slot?.is_occupied
+            ? `Занято: ${slot.arendator_name} (Груз #${slot.load_id})`
+            : slot?.status === 'reserved'
+              ? 'Зарезервировано'
+              : slot?.status === 'maintenance'
+                ? 'Техническое обслуживание'
+                : 'Доступно для бронирования'
+        }
+        arrow
+      >
+        <Box
+          sx={{
+            width: '100%',
+            height: 60,
+            borderRadius: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: isSelected ? 2 : 0,
+            ...slotStyle,
+            ...(isOver && {
+              backgroundColor: 'primary.light',
+              borderColor: 'primary.main',
+              borderWidth: 2,
+            }),
+            '&:hover': {
+              transform: 'scale(1.02)',
+              boxShadow: 1,
+            },
+          }}
+        >
+          {slot?.is_occupied ? (
+            <Typography variant="caption" fontWeight={500} noWrap>
+              #{slot.load_id}
+            </Typography>
+          ) : (
+            <Typography variant="caption">
+              {slot?.status === 'reserved'
+                ? 'Рез.'
+                : slot?.status === 'maintenance'
+                  ? 'Обсл.'
+                  : '—'}
+            </Typography>
+          )}
+        </Box>
+      </Tooltip>
+    </TableCell>
+  );
+}
+
+export function LotsTable() {
+  const { data, isLoading, error } = useGetTables();
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+
+  const getSlotStatus = (dockId: string, timeSlotId: string): ILotSlot | null =>
+    data?.lot_slots.find((slot) => slot.dock_id === dockId && slot.time_slot_id === timeSlotId) ||
+    null;
+
   const handleSlotClick = (dockId: string, timeSlotId: string) => {
     const slotKey = `${dockId}-${timeSlotId}`;
     setSelectedSlot(selectedSlot === slotKey ? null : slotKey);
@@ -198,7 +150,7 @@ export function LotsTable() {
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />
       </Box>
     );
@@ -206,7 +158,7 @@ export function LotsTable() {
 
   if (error) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <Typography color="error">Ошибка загрузки данных</Typography>
       </Box>
     );
@@ -258,7 +210,7 @@ export function LotsTable() {
         component={Paper}
         sx={{
           flexGrow: 1,
-          maxHeight: 'calc(100vh - 300px)',
+          height: '100%',
           overflow: 'auto',
           '&::-webkit-scrollbar': {
             width: 8,
@@ -273,7 +225,15 @@ export function LotsTable() {
           },
         }}
       >
-        <Table stickyHeader size="small">
+        <Table
+          stickyHeader
+          sx={{
+            height: '100%',
+            '& .MuiTableBody-root': {
+              height: '100%',
+            },
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell
@@ -322,65 +282,16 @@ export function LotsTable() {
                   const slot = getSlotStatus(dock.id, timeSlot.id);
                   const slotKey = `${dock.id}-${timeSlot.id}`;
                   const isSelected = selectedSlot === slotKey;
-                  const slotStyle = getSlotColor(slot?.status);
 
                   return (
-                    <TableCell
+                    <DroppableSlot
                       key={timeSlot.id}
-                      align="center"
-                      sx={{
-                        p: 0.5,
-                        cursor: 'pointer',
-                        position: 'relative',
-                      }}
-                      onClick={() => handleSlotClick(dock.id, timeSlot.id)}
-                    >
-                      <Tooltip
-                        title={
-                          slot?.is_occupied
-                            ? `Занято: ${slot.arendator_name} (Груз #${slot.load_id})`
-                            : slot?.status === 'reserved'
-                              ? 'Зарезервировано'
-                              : slot?.status === 'maintenance'
-                                ? 'Техническое обслуживание'
-                                : 'Доступно для бронирования'
-                        }
-                        arrow
-                      >
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: 40,
-                            borderRadius: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s',
-                            transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                            boxShadow: isSelected ? 2 : 0,
-                            ...slotStyle,
-                            '&:hover': {
-                              transform: 'scale(1.02)',
-                              boxShadow: 1,
-                            },
-                          }}
-                        >
-                          {slot?.is_occupied ? (
-                            <Typography variant="caption" fontWeight={500} noWrap>
-                              #{slot.load_id}
-                            </Typography>
-                          ) : (
-                            <Typography variant="caption">
-                              {slot?.status === 'reserved'
-                                ? 'Рез.'
-                                : slot?.status === 'maintenance'
-                                  ? 'Обсл.'
-                                  : '—'}
-                            </Typography>
-                          )}
-                        </Box>
-                      </Tooltip>
-                    </TableCell>
+                      dockId={dock.id}
+                      timeSlotId={timeSlot.id}
+                      slot={slot}
+                      isSelected={isSelected}
+                      onSlotClick={() => handleSlotClick(dock.id, timeSlot.id)}
+                    />
                   );
                 })}
               </TableRow>
