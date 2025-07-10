@@ -18,30 +18,45 @@ export const useDragAndDrop = () => {
       const { active, over } = event;
       if (!over) return;
 
-      const loadData = active.data.current;
+      const dragData = active.data.current;
       const dropData = over.data.current;
-      console.log('Drag ended:', dropData);
 
-      if (!loadData || !dropData) return;
+      if (!dragData || !dropData) return;
+      console.log('drop data:', dropData);
+      console.log('Drag', dragData);
+      if (dragData.from_table) {
+        updateTableMutation.mutate({
+          data: {
+            arendator: dragData.arendator,
+            arendator_id: dragData.arendator_id,
+            car_number: dragData.car_number || '',
+            loading_dock_id: dropData.dockId,
+            time_slot_id: dropData.timeSlotId,
+          },
+          id: dragData.id,
+        });
+        return;
+      }
 
+      // This is a load from the loads list
       if (dropData.existingSlotId) {
         // Update existing slot
         updateTableMutation.mutate({
           data: {
-            arendator: loadData.arendator,
-            arendator_id: loadData.arendator_id,
-            car_number: loadData.car_number,
+            arendator: dragData.arendator,
+            arendator_id: dragData.arendator_id,
+            car_number: dragData.car_number || '',
             loading_dock_id: dropData.dockId,
             time_slot_id: dropData.timeSlotId,
           },
-          id: loadData.id,
+          id: dropData.existingSlotId,
         });
       } else {
         // Add to new slot
         addToTableMutation.mutate({
-          arendator: loadData.arendator,
-          arendator_id: loadData.arendator_id,
-          car_number: loadData.car_number,
+          arendator: dragData.arendator,
+          arendator_id: dragData.arendator_id,
+          car_number: dragData.car_number || '',
           loading_dock_id: dropData.dockId,
           time_slot_id: dropData.timeSlotId,
         });

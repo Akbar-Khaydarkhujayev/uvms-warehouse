@@ -16,6 +16,7 @@ import type { ILoad } from './api/load/get';
 
 export function DashboardView() {
   const [activeLoad, setActiveLoad] = useState<ILoad | null>(null);
+  const [activeSlot, setActiveSlot] = useState<any>(null);
   const { handleDragStart, handleDragEnd } = useDragAndDrop();
 
   return (
@@ -24,11 +25,22 @@ export function DashboardView() {
         collisionDetection={closestCenter}
         onDragStart={(event) => {
           handleDragStart(event);
-          setActiveLoad(event.active.data.current as ILoad);
+          const dragData = event.active.data.current;
+
+          if (dragData?.from_table) {
+            // Dragging from table
+            setActiveSlot(dragData);
+            setActiveLoad(null);
+          } else {
+            // Dragging from loads list
+            setActiveLoad(dragData as ILoad);
+            setActiveSlot(null);
+          }
         }}
         onDragEnd={(event) => {
           handleDragEnd(event);
           setActiveLoad(null);
+          setActiveSlot(null);
         }}
       >
         <Box
@@ -50,7 +62,21 @@ export function DashboardView() {
         </Box>
 
         <DragOverlay adjustScale={false} dropAnimation={null}>
-          {activeLoad ? <DragOverlayCard load={activeLoad} /> : null}
+          {activeLoad ? (
+            <DragOverlayCard load={activeLoad} />
+          ) : activeSlot ? (
+            <DragOverlayCard
+              load={{
+                id: activeSlot.load_id || 0,
+                arendator: activeSlot.arendator || '',
+                arendator_id: activeSlot.arendator_id || '',
+                period_start: '',
+                period_stop: '',
+                the_date: '',
+                status: true,
+              }}
+            />
+          ) : null}
         </DragOverlay>
       </DndContext>
     </DashboardContent>

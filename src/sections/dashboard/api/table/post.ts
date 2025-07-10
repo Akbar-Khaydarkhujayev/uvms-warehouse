@@ -22,7 +22,7 @@ export const addToTable = (data: IAddToTableRequest): Promise<any> =>
   axiosInstance.post('Table/add_to_table', data).then((res) => res.data);
 
 export const updateTable = (id: string | number, data: IUpdateTableRequest): Promise<any> =>
-  axiosInstance.put(`Table/add_to_table?=${id}`, data).then((res) => res.data);
+  axiosInstance.put(`Table/add_to_table?id=${id}`, data).then((res) => res.data);
 
 export const useAddToTable = () => {
   const queryClient = useQueryClient();

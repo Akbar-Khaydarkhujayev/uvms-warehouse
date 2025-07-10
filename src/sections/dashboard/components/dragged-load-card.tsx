@@ -24,7 +24,6 @@ export function DragOverlayCard({ load }: DraggedLoadCardProps) {
         borderColor: 'primary.main',
         borderRadius: 1,
         scale: '1.05',
-        transform: 'translate(70%, 70%)',
       }}
     >
       <CardContent

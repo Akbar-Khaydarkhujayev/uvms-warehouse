@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDroppable } from '@dnd-kit/core';
+import { useDroppable, useDraggable } from '@dnd-kit/core';
 
 import {
   Box,
@@ -30,7 +30,7 @@ interface DroppableSlotProps {
 }
 
 function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: DroppableSlotProps) {
-  const { isOver, setNodeRef } = useDroppable({
+  const { isOver, setNodeRef: setDropNodeRef } = useDroppable({
     id: `slot-${dockId}-${timeSlotId}`,
     data: {
       dockId,
@@ -38,6 +38,42 @@ function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: Dr
       existingSlotId: slot?.id,
     },
   });
+
+  // Make occupied slots draggable
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragNodeRef,
+    transform,
+    isDragging,
+  } = useDraggable({
+    id: `table-slot-${slot?.id || `${dockId}-${timeSlotId}`}`,
+    data: slot?.is_occupied
+      ? {
+          id: slot.id,
+          arendator: slot.arendator_name || '',
+          arendator_id: slot.arendator_name || '', // Use arendator_name as fallback
+          car_number: '', // Default empty, would need to be fetched if needed
+          load_id: slot.load_id,
+          from_table: true, // Flag to identify table-to-table drags
+        }
+      : undefined,
+    disabled: !slot?.is_occupied, // Only allow dragging if slot is occupied
+  });
+
+  // Combine refs for both draggable and droppable
+  const setNodeRef = (node: HTMLElement | null) => {
+    setDropNodeRef(node);
+    if (slot?.is_occupied) {
+      setDragNodeRef(node);
+    }
+  };
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
 
   const getSlotColor = (status: string | undefined) => {
     switch (status) {
@@ -73,11 +109,15 @@ function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: Dr
   return (
     <TableCell
       ref={setNodeRef}
+      style={style}
+      {...(slot?.is_occupied ? { ...attributes, ...listeners } : {})}
       align="center"
       sx={{
-        cursor: 'pointer',
+        cursor: slot?.is_occupied ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         position: 'relative',
         backgroundColor: isOver ? 'action.hover' : 'transparent',
+        opacity: isDragging ? 0.5 : 1,
+        transition: isDragging ? 'none' : 'all 0.2s',
       }}
       onClick={onSlotClick}
     >
