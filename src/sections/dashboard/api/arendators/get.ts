@@ -5,13 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from 'src/utils/axios';
 
 export interface IArendator {
-  birthday: string;
-  lastName: string;
-  firstName: string;
-  middleName: string;
-  image: string;
-  registeredStreet: string;
-  address: string;
+  id: number;
+  arendator_id: string;
+  arendator: string;
+  tg_user_id: number;
+  status: boolean;
 }
 
 export const getArendators = (params?: IReqParams): Promise<IArendator[]> =>
@@ -21,8 +19,8 @@ export const getArendators = (params?: IReqParams): Promise<IArendator[]> =>
     })
     .then((res) => res.data.result);
 
-export const useGetArendators = () =>
+export const useGetArendators = (params?: IReqParams) =>
   useQuery({
-    queryKey: ['arendators'],
-    queryFn: () => getArendators(),
+    queryKey: ['arendators', params],
+    queryFn: () => getArendators(params),
   });

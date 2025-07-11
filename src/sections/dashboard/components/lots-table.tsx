@@ -5,6 +5,7 @@ import {
   Box,
   Table,
   Paper,
+  Button,
   Tooltip,
   TableRow,
   TableBody,
@@ -14,6 +15,8 @@ import {
   TableContainer,
   CircularProgress,
 } from '@mui/material';
+
+import { Iconify } from 'src/components/iconify';
 
 import { useGetTables } from '../api/table/get';
 
@@ -206,11 +209,16 @@ export function LotsTable() {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        Таблица доступных мест
-      </Typography>
+      <Box display="flex" alignItems="end" justifyContent="space-between">
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Таблица доступных мест
+        </Typography>
 
-      {/* Legend */}
+        <Button variant="contained" endIcon={<Iconify icon="solar:clipboard-list-broken" />}>
+          Список заявок
+        </Button>
+      </Box>
+
       <Box display="flex" gap={2} mb={2} flexWrap="wrap">
         <Box display="flex" alignItems="center" gap={0.5}>
           <Box

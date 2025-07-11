@@ -22,8 +22,7 @@ export const useDragAndDrop = () => {
       const dropData = over.data.current;
 
       if (!dragData || !dropData) return;
-      console.log('drop data:', dropData);
-      console.log('Drag', dragData);
+
       if (dragData.from_table) {
         updateTableMutation.mutate({
           data: {
@@ -54,6 +53,7 @@ export const useDragAndDrop = () => {
       } else {
         // Add to new slot
         addToTableMutation.mutate({
+          unloading_id: String(dragData.id),
           arendator: dragData.arendator,
           arendator_id: dragData.arendator_id,
           car_number: dragData.car_number || '',

@@ -20,7 +20,10 @@ export function DashboardView() {
   const { handleDragStart, handleDragEnd } = useDragAndDrop();
 
   return (
-    <DashboardContent maxWidth="xl" sx={{ p: 2, height: 'calc(100vh - 80px)' }}>
+    <DashboardContent
+      maxWidth="xl"
+      sx={{ p: 2, maxHeight: 'calc(100cvh - 80px)', overflow: 'hidden' }}
+    >
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={(event) => {

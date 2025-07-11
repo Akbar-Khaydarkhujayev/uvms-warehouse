@@ -6,20 +6,22 @@ import { useTranslate } from 'src/locales';
 
 import { toast } from 'src/components/snackbar';
 
-import type { FormSchemaType } from './formSchema';
+export const editArendators = ({ id, status }: { id: string | number; status: boolean }) =>
+  axiosInstance.put(`Arendators/edit/${id}`, {
+    params: {
+      status,
+    },
+  });
 
-export const createTable = (data: FormSchemaType) =>
-  axiosInstance.post('Table/add_to_table', data).then((res) => res.data);
-
-export const useCreateTable = (handleClose: () => void) => {
+export const useEditArendators = (handleClose: () => void) => {
   const queryClient = useQueryClient();
   const { t } = useTranslate();
 
   return useMutation({
-    mutationFn: createTable,
+    mutationFn: editArendators,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['table'] });
-      toast.success(t('successfully created'));
+      queryClient.invalidateQueries({ queryKey: ['arendators'] });
+      toast.success(t('successfully updated'));
       handleClose();
     },
     onError: (error) => {

@@ -37,7 +37,7 @@ export const useGetLoads = () =>
 export const useGetLoadsInfinite = () =>
   useInfiniteQuery({
     queryKey: ['loads-infinite'],
-    queryFn: ({ pageParam = 1 }) => getLoads({ page: pageParam }),
+    queryFn: ({ pageParam = 1 }) => getLoads({ page: pageParam, set_status: false }),
     getNextPageParam: (lastPage) => {
       const { current_page, total_pages } = lastPage;
       return current_page < total_pages ? current_page + 1 : undefined;
