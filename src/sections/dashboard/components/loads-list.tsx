@@ -150,7 +150,12 @@ export function LoadsList() {
           alignItems="center"
           justifyContent="center"
           height={400}
-          sx={{ backgroundColor: 'background.neutral', borderRadius: 1 }}
+          sx={{
+            backgroundColor: 'background.neutral',
+            borderRadius: 1,
+            px: 4,
+            textAlign: 'center',
+          }}
         >
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Грузы не найдены

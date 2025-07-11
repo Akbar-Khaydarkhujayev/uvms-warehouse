@@ -16,9 +16,12 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { Iconify } from 'src/components/iconify';
 
 import { useGetTables } from '../api/table/get';
+import ArendatorsDialog from './arendators-dialog';
 
 import type { ILotSlot } from '../api/table/get';
 
@@ -181,6 +184,7 @@ function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: Dr
 export function LotsTable() {
   const { data, isLoading, error } = useGetTables();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const arendatorsDialog = useBoolean();
 
   const getSlotStatus = (dockId: string, timeSlotId: string): ILotSlot | null =>
     data?.lot_slots.find((slot) => slot.dock_id === dockId && slot.time_slot_id === timeSlotId) ||
@@ -209,14 +213,22 @@ export function LotsTable() {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
+      <ArendatorsDialog open={arendatorsDialog.value} onClose={arendatorsDialog.onFalse} />
+
       <Box display="flex" alignItems="end" justifyContent="space-between">
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
           Таблица доступных мест
         </Typography>
 
-        <Button variant="contained" endIcon={<Iconify icon="solar:clipboard-list-broken" />}>
-          Список заявок
-        </Button>
+        <Box display="flex" gap={2}>
+          <Button
+            variant="contained"
+            endIcon={<Iconify icon="solar:clipboard-list-broken" />}
+            onClick={arendatorsDialog.onTrue}
+          >
+            Список арендаторов
+          </Button>
+        </Box>
       </Box>
 
       <Box display="flex" gap={2} mb={2} flexWrap="wrap">

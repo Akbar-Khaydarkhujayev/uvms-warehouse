@@ -17,7 +17,7 @@ export const getArendators = (params?: IReqParams): Promise<IArendator[]> =>
     .get('Arendators/get_all', {
       params,
     })
-    .then((res) => res.data.result);
+    .then((res) => res.data);
 
 export const useGetArendators = (params?: IReqParams) =>
   useQuery({
