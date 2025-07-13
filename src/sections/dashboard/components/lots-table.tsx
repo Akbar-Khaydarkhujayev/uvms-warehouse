@@ -16,6 +16,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import dayjs from 'dayjs';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
@@ -24,6 +25,7 @@ import { useGetTables } from '../api/table/get';
 import ArendatorsDialog from './arendators-dialog';
 
 import type { ILotSlot } from '../api/table/get';
+import { DatePicker } from '@mui/x-date-pickers';
 
 // ----------------------------------------------------------------------
 
@@ -164,7 +166,7 @@ function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: Dr
         >
           {slot?.is_occupied ? (
             <Typography variant="caption" fontWeight={500} noWrap>
-              #{slot.load_id}
+              {slot.arendator_name}
             </Typography>
           ) : (
             <Typography variant="caption">
@@ -182,9 +184,13 @@ function DroppableSlot({ dockId, timeSlotId, slot, isSelected, onSlotClick }: Dr
 }
 
 export function LotsTable() {
-  const { data, isLoading, error } = useGetTables();
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const arendatorsDialog = useBoolean();
+
+  // Format date for API (YYYY-MM-DD)
+  const formattedDate = selectedDate.format('DD-MM-YYYY');
+  const { data, isLoading, error } = useGetTables(formattedDate);
 
   const getSlotStatus = (dockId: string, timeSlotId: string): ILotSlot | null =>
     data?.lot_slots.find((slot) => slot.dock_id === dockId && slot.time_slot_id === timeSlotId) ||
@@ -219,8 +225,19 @@ export function LotsTable() {
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
           Таблица доступных мест
         </Typography>
-
         <Box display="flex" gap={2}>
+          <DatePicker
+            label="Выберите дату"
+            value={selectedDate}
+            onChange={(newValue) => newValue && setSelectedDate(newValue)}
+            format="DD.MM.YYYY"
+            slotProps={{
+              textField: {
+                size: 'small',
+                sx: { minWidth: 150 },
+              },
+            }}
+          />
           <Button
             variant="contained"
             endIcon={<Iconify icon="solar:clipboard-list-broken" />}

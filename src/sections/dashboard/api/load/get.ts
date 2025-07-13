@@ -43,4 +43,5 @@ export const useGetLoadsInfinite = () =>
       return current_page < total_pages ? current_page + 1 : undefined;
     },
     initialPageParam: 1,
+    refetchInterval: 3000,
   });

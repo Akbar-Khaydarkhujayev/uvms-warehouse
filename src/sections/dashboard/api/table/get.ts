@@ -41,8 +41,8 @@ export const getTable = (params?: IReqParams): Promise<ITableData> =>
     })
     .then((res) => res.data);
 
-export const useGetTables = () =>
+export const useGetTables = (date?: string) =>
   useQuery({
-    queryKey: ['table'],
-    queryFn: () => getTable(),
+    queryKey: ['table', date],
+    queryFn: () => getTable(date ? { date } : undefined),
   });
